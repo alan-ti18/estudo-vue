@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script src="./vue.js"></script>
+  <title>Estudo Vue.JS</title>
+</head>
+<body>
+  <div id="app">
+    <!-- <button @click="analisaAcoes">Comparar Ações</button>
+    <p>MarketCap Empresa <span :class="maior == 'apple' ? 'verde' : 'vermelho'"> {{ apple.companyName }} </span>: <span>{{ apple.marketCap }}</span></p>
+    <p>MarketCap Empresa <span :class="maior == 'google' ? 'verde' : 'vermelho'"> {{ google.companyName }} </span>: <span>{{ google.marketCap }}</span></p> -->
+    <li><a @click.prevent="buscaDadosAPI" href="https://cloud.iexapis.com/stable/stock/aapl/quote?token=pk_4c485144944342df9e43f49cf4b96c2b">Apple</a></li>
+    <li><a @click.prevent="buscaDadosAPI" href="https://cloud.iexapis.com/stable/stock/googl/quote?token=pk_4c485144944342df9e43f49cf4b96c2b">Google</a></li>
+    <li><a @click.prevent="buscaDadosAPI" href="https://cloud.iexapis.com/stable/stock/amzn/quote?token=pk_4c485144944342df9e43f49cf4b96c2b">Amazon</a></li>
+    <li><a @click.prevent="buscaDadosAPI" href="https://cloud.iexapis.com/stable/stock/ebay/quote?token=pk_4c485144944342df9e43f49cf4b96c2b">Ebay</a></li>
+    <li><a @click.prevent="buscaDadosAPI" href="https://cloud.iexapis.com/stable/stock/pypl/quote?token=pk_4c485144944342df9e43f49cf4b96c2b">Paypal</a></li>
+
+    <p>Empresa: <span> {{ empresa }} </span></p>
+    <p>Último Preço: <span> {{ ultimoPreco }} </span></p>
+    <p>Valor de Mercado: <span v-if="retornoMarketCap">R$ </span><span> {{ valorMercado }} </span></p>
+  </div>
+
+  <script>
+    const vm = new Vue({
+      el: "#app",
+      data: {
+        apple: {},
+        google: {},
+        maior: "",
+        retornoMarketCap: false,
+        empresa: "",
+        ultimoPreco: 0,
+        valorMercado: 0
+      },
+      methods: {
+        async analisaAcoes(){
+          try{
+            const resApple = await fetch('https://cloud.iexapis.com/stable/stock/aapl/quote?token=pk_4c485144944342df9e43f49cf4b96c2b');
+            const resGoogle = await fetch('https://cloud.iexapis.com/stable/stock/googl/quote?token=pk_4c485144944342df9e43f49cf4b96c2b')
+            const resAppleJSON = await resApple.json();
+            const resGoogleJSON = await resGoogle.json();
+            this.apple = resAppleJSON;
+            this.google = resGoogleJSON;
+            this.compareEmpresa(this.apple, this.google);
+          }
+          catch(err){
+            console.log(`Deu merda: ${err}`)
+          }
+        },
+        compareEmpresa(emp1, emp2){
+          if(emp1.marketCap > emp2.marketCap){
+            this.maior = "apple";
+            return;
+          } if(emp1.marketCap < emp2.marketCap){
+            this.maior = "google";
+            return;
+          }
+        },
+        async buscaDadosAPI(ev){
+          try{
+            const alvo = ev.target.href;
+            const dadosAPI = await fetch(alvo);
+            const dadosAPIJson = await dadosAPI.json();
+            this.empresa = dadosAPIJson.companyName;
+            this.ultimoPreco = dadosAPIJson.latestPrice;
+            this.valorMercado = dadosAPIJson.marketCap;
+            this.retornoMarketCap = true;
+          }
+          catch(err){
+            console.log(`Deu algum erro: ${err}`);
+          }
+        }
+      }
+    })
+  </script>
+
+</body>
+</html>
